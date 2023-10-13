@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>链接解析器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f2f2f2;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+ 
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    form label {
+      margin-bottom: 10px;
+    }
+
+    form input[type="text"],
+    form input[type="password"] {
+      width: 300px;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+      transition: border-color 0.3s ease-in-out;
+    }
+
+    form input[type="text"]:focus,
+    form input[type="password"]:focus {
+      border-color: #3b89fc;
+    }
+
+    form button {
+      padding: 10px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: #3b89fc;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease-in-out;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      background-color: #265da4;
+    }
+
+    .output {
+      display: none;
+      margin-top: 20px;
+      max-width: 500px;
+      padding: 20px;
+      border: 2px solid #3b89fc;
+      border-radius: 5px;
+      background-color: #fff;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      white-space: pre-line;
+      word-wrap: break-word;
+    }
+
+    .output button {
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      color: #3b89fc;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .copy-success {
+      margin-top: 5px;
+      font-size: 12px;
+      color: #6c9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <form id="form">
+        <h2>蓝奏云直链解析</h2>
+<p>填入蓝奏云分享链接，无密码则留空，点解析即可获取直链。</p>
+            <label for="url">链接：</label>
+            <input type="text" id="url" placeholder="请输入要解析的链接" required>
+            <label for="pwd">密码：</label>
+            <input type="text" id="pwd" placeholder="请输入密码">
+            <button type="submit">提交</button>
+    </form>
+    <div id="output" class="output"></div>
+  </div>
+
+  <script>
+   const form = document.querySelector('#form');
+const output = document.querySelector('#output');
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  output.style.display = 'none';
+  // 获取输入框的值
+  const url = document.querySelector('#url').value;
+  const pwd = document.querySelector('#pwd').value;
+
+  // 构建 API 地址
+  let apiUrl = `https://jx.onf.cc/jx.php?url=${encodeURIComponent(url)}`;
+  if (pwd !== '') {
+    apiUrl += `&pwd=${encodeURIComponent(pwd)}`;
+  }
+
+  // 发送请求
+  fetch(apiUrl)
+    .then(response => response.json())
+    .then(data => {
+      // 输出解析结果
+      const { name, msg, filesize, downUrl } = data;
+      output.innerHTML = `解析结果：${msg}<br>文件名：${name}<br>文件大小：${filesize} 字节<br>直链地址：<span id="copyTarget">${downUrl}</span><button id="copyBtn">复制</button><br>
+    <span style="text-align: center; margin-top: 10px;">直链地址一般几个小时后自动失效！</p>  永久直链：<span id="copyTarget2" >${apiUrl}&type=down</span><button id="copyBtn2">复制</button>`;
+      output.style.display = 'block';
+      
+      // 复制按钮事件
+      const copyBtns = document.querySelectorAll('[id^="copyBtn"]');
+      copyBtns.forEach(copyBtn => {
+        copyBtn.addEventListener('click', () => {
+          const copyTarget = document.querySelector(`#${copyBtn.previousElementSibling.id}`);
+          const range = document.createRange();
+          range.selectNode(copyTarget);
+          const selection = window.getSelection();
+          selection.removeAllRanges();
+          selection.addRange(range);
+          document.execCommand('copy');
+          selection.removeAllRanges();
+          const copySuccess = document.createElement('div');
+          copySuccess.classList.add('copy-success');
+          copySuccess.innerText = '已复制到剪贴板';
+          copyBtn.parentNode.insertBefore(copySuccess, copyBtn.nextElementSibling);
+        });
+      });
+    })
+    .catch(error => {
+      // 输出错误消息
+      output.innerText = `出错了：${error.message}`;
+      output.style.display = 'block';          
+    });
+});
+
+  </script>
+</body>
+</html>
