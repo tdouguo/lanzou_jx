@@ -125,7 +125,7 @@ form.addEventListener('submit', (e) => {
   const pwd = document.querySelector('#pwd').value;
 
   // 构建 API 地址
-  let apiUrl = `https://jx.onf.cc/jx.php?url=${encodeURIComponent(url)}`;
+  let apiUrl = `/jx.php?url=${encodeURIComponent(url)}`;
   if (pwd !== '') {
     apiUrl += `&pwd=${encodeURIComponent(pwd)}`;
   }
